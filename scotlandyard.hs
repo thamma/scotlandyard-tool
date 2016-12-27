@@ -10,18 +10,15 @@ main = do
     b <- getArgs
     putStrLn $ join "\n" $ format a b
 
-(∈) :: (Foldable t, Eq a) => a -> t a -> Bool
-(∈) = elem
-
--- use this to properly format your input
--- argument: the lines read from stdin
--- return:   the lines to be put to stdout
 format :: [[Char]] -> [[Char]]-> [[Char]]
-format input args = let
---    (taxi, bus, metro, ship) = generateGraphs(input)
+format input args = 
+    if (length input == 0)
+        then ["No mapfile fed to input stream."]
+    else if (length args == 0) then ["usage: ./scotlandyard [start] [transition...]", "where start is an integer and","transitions is a sequence of the characters 't', 'b', 'm' and 'a'."]
+    else let
     graphs = generateGraphs(input)
-    start = read (args!!0) :: Int
-    moves = map getMove (tail args)
+    start = read (head args) :: Int
+    moves = getMoves (tail args)
     out = calcStates graphs [start] moves
     in [show (sort (nub out))]
 
@@ -41,18 +38,31 @@ calcStates graphs states (move:moves) = calcStates graphs newStates moves where
 
 data Move = Taxi | Bus | Metro | Ship | Any
 
-getMove :: [Char] -> Move
-getMove ('t':x) = Taxi
-getMove ('b':x) = Bus
-getMove ('m':x) = Metro
---getMove ('s':x) = Ship
-getMove ('a':x) = Any
+getMoves :: [[Char]] -> [Move]
+getMoves input = getMove (join "" input)
+
+getMove :: [Char] -> [Move]
+getMove [] = []
+getMove ('t':x) = Taxi: (getMove x)
+getMove ('b':x) = Bus : (getMove x)
+getMove ('m':x) = Metro : (getMove x)
+getMove ('s':x) = Ship : (getMove x)
+getMove ('a':x) = Any : (getMove x)
 
 generateGraphs :: [[Char]] -> (Graph, Graph, Graph, Graph)
-generateGraphs lines = (buildG (1,175) (parseGraph lines 't'), buildG (1,175) (parseGraph lines 'b'), buildG (1,175) (parseGraph lines 'm'), buildG (1,175) (parseGraph lines 's'))
+generateGraphs lines = let
+    edgesT  = parseGraph lines 't'
+    boundsT = bounds edgesT
+    graphT  = buildG boundsT edgesT
+    in (buildG (1,175) (parseGraph lines 't'), buildG (1,175) (parseGraph lines 'b'), buildG (1,175) (parseGraph lines 'm'), buildG (1,175) (parseGraph lines 's')) where
+        bounds edges = (foldr (\(a,b) m -> min m (min a b) ) (fst $ head edges) edges, foldr (\(a,b) m -> max m (max a b) ) (fst $ head edges) edges)
+
+
 
 parseGraph :: [[Char]] -> Char -> [Edge]
 parseGraph [] char = []
+parseGraph ("":lines) char = parseGraph lines char
+parseGraph (('#':x):lines) char = parseGraph lines char
 parseGraph (a:lines) char =  let (pref,line) = (head a, tail a)
     in if (pref == char) then (parseLine line) ++ (parseGraph lines char) else (parseGraph lines char)
 
@@ -61,28 +71,6 @@ parseLine (' ' : chars) = foldr (\a l -> ((read x, (read a))):l ) [] (tail numLi
    numList = split ' ' chars
    x = head numList
 parseLine _ = []
-
-
-
-trim :: [Char] -> Int -> [Char]
-trim [] n = []
-trim xs 0 = "..."
-trim (x:xs) n = x:(trim xs (n-1))
-
--- startsWith a b : does b start with a?
-startsWith :: [Char] -> [Char] -> Bool
-startsWith [] s = True
-startsWith s [] = False
-startsWith (x:xs) (y:ys) = (x==y) && (startsWith xs ys)
-
-remove :: [Char] -> [Char] -> [Char]
-remove [] s = s
-remove x [] = []
-remove (x:xs) (y:ys) = if (x == y) then (remove xs ys) else y:(remove (x:xs) ys)
-
-removeAll :: Char -> [Char] -> [Char]
-removeAll c [] = []
-removeAll c (x:xs) = if (c == x) then (removeAll c xs) else x : (removeAll c xs)
 
 split :: Char -> [Char] -> [[Char]]
 split c [] = []
