@@ -45,7 +45,7 @@ getMove :: [Char] -> Move
 getMove ('t':x) = Taxi
 getMove ('b':x) = Bus
 getMove ('m':x) = Metro
-getMove ('s':x) = Ship
+--getMove ('s':x) = Ship
 getMove ('a':x) = Any
 
 generateGraphs :: [[Char]] -> (Graph, Graph, Graph, Graph)
