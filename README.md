@@ -11,7 +11,7 @@ You call the program with the arguments `./scotlandyard [start] [transition...]`
 #Map file
 Each line in the mapfile consits of the mean of transport, the nodes id and a list of outgoing edges resembled by the target vertex' id.
 For example this graph (included as `map2.map`)
-![Graph](http://i.imgur.com/aMjIisG.png)
+![Graph](/images/samplegraph.png)
 
 can be resembled by
 ```
