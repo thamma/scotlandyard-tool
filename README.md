@@ -29,4 +29,4 @@ s 2 5
 s 5 2
 ```
 
-and executing `cat map2.map | ./scotlandyard 1 m s a` returns the list of possible states `[2,4]` since starting in state 1, taking the metro, taking the ship and finally taking anything, leaves us being an state 2 or 4.
+and executing `cat map2.map | ./scotlandyard 1 m s a` returns the list of possible states `[2,4]` since starting in state 1, taking the metro, taking the ship and finally taking anything, leaves us being an state 2 or 4. You can find the latest SLY map named `map.map` in the repository.
